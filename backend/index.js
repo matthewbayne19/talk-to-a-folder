@@ -4,6 +4,7 @@ const dotenv = require("dotenv");
 const { google } = require("googleapis");
 const OpenAI = require("openai");
 const axios = require("axios");
+const pdfParse = require("pdf-parse");
 
 dotenv.config();
 
@@ -17,18 +18,27 @@ const oauth2Client = new google.auth.OAuth2(
   "http://localhost:3000/oauth-callback"
 );
 
+// Helper to create authenticated Google API client
+const getAuthClient = (accessToken) => {
+  const authClient = new google.auth.OAuth2();
+  authClient.setCredentials({ access_token: accessToken });
+  return authClient;
+};
+
+// Step 1: Auth URL
 app.get("/auth-url", (req, res) => {
   const url = oauth2Client.generateAuthUrl({
     access_type: "offline",
     scope: [
       "https://www.googleapis.com/auth/drive.readonly",
       "https://www.googleapis.com/auth/documents.readonly",
-      "https://www.googleapis.com/auth/spreadsheets.readonly"
-    ]
+      "https://www.googleapis.com/auth/spreadsheets.readonly",
+    ],
   });
   res.send({ url });
 });
 
+// Step 2: Auth Code Exchange
 app.post("/auth-code", async (req, res) => {
   const { code } = req.body;
   try {
@@ -39,13 +49,12 @@ app.post("/auth-code", async (req, res) => {
   }
 });
 
-// List files in folder
+// Step 3: List Files
 app.post("/list-files", async (req, res) => {
   const { accessToken, folderId } = req.body;
-  const authClient = new google.auth.OAuth2();
-  authClient.setCredentials({ access_token: accessToken });
 
-  const drive = google.drive({ version: "v3", auth: authClient });
+  const auth = getAuthClient(accessToken);
+  const drive = google.drive({ version: "v3", auth });
 
   try {
     const listRes = await drive.files.list({
@@ -61,46 +70,88 @@ app.post("/list-files", async (req, res) => {
   }
 });
 
-// Helper functions to fetch content
+// Helper: Fetch Google Docs content
 const fetchDocContent = async (fileId, accessToken) => {
-  const response = await axios.get(
-    `https://docs.googleapis.com/v1/documents/${fileId}`,
-    {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    }
-  );
+  const auth = getAuthClient(accessToken);
+  const docs = google.docs({ version: "v1", auth });
+
+  const response = await docs.documents.get({ documentId: fileId });
 
   const bodyContent = response.data.body.content || [];
   const text = bodyContent
-    .map((el) => el.paragraph?.elements?.map((e) => e.textRun?.content).join("") || "")
+    .map((el) =>
+      el.paragraph?.elements?.map((e) => e.textRun?.content).join("") || ""
+    )
     .join("");
+
   return text;
 };
 
+// Helper: Fetch Google Sheets content
 const fetchSheetContent = async (fileId, accessToken) => {
-  const response = await axios.get(
-    `https://sheets.googleapis.com/v4/spreadsheets/${fileId}/values/Sheet1`,
-    {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
+  const auth = getAuthClient(accessToken);
+  const sheets = google.sheets({ version: "v4", auth });
+
+  try {
+    // Step 1: Get metadata to list all sheet names
+    const metadata = await sheets.spreadsheets.get({
+      spreadsheetId: fileId,
+    });
+
+    const sheetTitles = metadata.data.sheets?.map((s) => s.properties.title) || [];
+
+    if (sheetTitles.length === 0) {
+      return "[No sheets found]";
     }
-  );
 
-  return response.data.values.map((row) => row.join(" | ")).join("\n");
+    let fullContent = "";
+
+    // Step 2: Loop through each sheet and fetch its data
+    for (const title of sheetTitles) {
+      const res = await sheets.spreadsheets.values.get({
+        spreadsheetId: fileId,
+        range: title,
+      });
+
+      const rows = res.data.values || [];
+      const sheetData = rows.map((row) => row.join(" | ")).join("\n");
+
+      fullContent += `Sheet: ${title}\n${sheetData}\n\n`;
+    }
+
+    return fullContent.trim();
+  } catch (err) {
+    console.error(`Failed to fetch sheet content for ${fileId}:`, err.message);
+    return "[Error fetching sheet content]";
+  }
 };
 
+// Helper: Extract for PDF content
 const fetchPdfContent = async (fileId, accessToken) => {
-  // Placeholder for PDF handling — would require file export and PDF parsing
-  return "[PDF content parsing not implemented]";
+  try {
+    // Export the file as PDF using Drive API
+    const exportRes = await axios.get(
+      `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        responseType: "arraybuffer", // important for binary
+      }
+    );
+
+    const buffer = Buffer.from(exportRes.data);
+    const parsed = await pdfParse(buffer);
+    return parsed.text;
+  } catch (err) {
+    console.error(`Failed to parse PDF ${fileId}:`, err.message);
+    return "[Error parsing PDF]";
+  }
 };
 
-// Get file contents
+// Step 4: Get File Contents
 app.post("/get-file-contents", async (req, res) => {
   const { accessToken, files } = req.body;
-
   const fileContents = [];
 
   for (const file of files) {
@@ -127,45 +178,44 @@ app.post("/get-file-contents", async (req, res) => {
   res.send({ contents: fileContents });
 });
 
-// Chat agent
+// Step 5: Ask OpenAI Agent
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-  app.post("/ask-agent", async (req, res) => {
-    const { contents, question } = req.body;
+app.post("/ask-agent", async (req, res) => {
+  const { contents, question } = req.body;
 
-    if (!Array.isArray(contents)) {
-      return res.status(400).send("Missing or invalid 'contents'");
-    }
+  if (!Array.isArray(contents)) {
+    return res.status(400).send("Missing or invalid 'contents'");
+  }
 
-    const combined = contents
-      .map((file) => `File: ${file.name}\nContent:\n${file.content}\n`)
-      .join("\n\n");
+  const combined = contents
+    .map((file) => `File: ${file.name}\nContent:\n${file.content}\n`)
+    .join("\n\n");
 
-    try {
-      const response = await openai.chat.completions.create({
-        model: "gpt-4o",
-        messages: [
-          {
-            role: "system",
-            content:
-              "You are a helpful assistant. You answer user questions using the following file contents:",
-          },
-          {
-            role: "user",
-            content: `Here is the folder's file content:\n\n${combined}\n\nQuestion: ${question}`,
-          },
-        ],
-      });
+  try {
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content:
+            "You are a helpful assistant. You answer user questions using the following file contents:",
+        },
+        {
+          role: "user",
+          content: `Here is the folder's file content:\n\n${combined}\n\nQuestion: ${question}`,
+        },
+      ],
+    });
 
-      res.send({ answer: response.choices[0].message.content });
-    } catch (err) {
-      console.error("Error calling OpenAI:", err.message);
-      res.status(500).send("Failed to generate answer");
-    }
-  });
-
+    res.send({ answer: response.choices[0].message.content });
+  } catch (err) {
+    console.error("Error calling OpenAI:", err.message);
+    res.status(500).send("Failed to generate answer");
+  }
+});
 
 app.listen(4000, () => {
   console.log("Backend running on http://localhost:4000");
