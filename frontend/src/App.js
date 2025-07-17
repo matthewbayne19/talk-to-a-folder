@@ -1,19 +1,18 @@
-import React, { useState } from "react";
-import axios from "axios";
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Landing from "./pages/Landing";
+import OAuthCallback from "./pages/OAuthCallback";
+import Home from "./pages/Home";
 
 function App() {
-  const [authUrl, setAuthUrl] = useState("");
-
-  const getAuthUrl = async () => {
-    const res = await axios.get("http://localhost:4000/auth-url");
-    window.location.href = res.data.url;
-  };
-
   return (
-    <div>
-      <h1>Talk to a Folder</h1>
-      <button onClick={getAuthUrl}>Login with Google Drive</button>
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Landing />} />
+        <Route path="/oauth-callback" element={<OAuthCallback />} />
+        <Route path="/home" element={<Home />} />
+      </Routes>
+    </Router>
   );
 }
 

@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const { google } = require("googleapis");
+const axios = require("axios");
 
 dotenv.config();
 
@@ -30,6 +31,43 @@ app.post("/auth-code", async (req, res) => {
     res.send(tokens);
   } catch (err) {
     res.status(500).send("Failed to get tokens");
+  }
+});
+
+const extractFolderId = (url) => {
+  const match = url.match(/\/folders\/([a-zA-Z0-9_-]+)/);
+  return match ? match[1] : null;
+};
+
+app.post("/list-files", async (req, res) => {
+  const { accessToken, folderUrl } = req.body;
+
+  const folderId = extractFolderId(folderUrl);
+  if (!folderId) {
+    return res.status(400).send("Invalid Google Drive folder URL.");
+  }
+
+  console.log("Parsed folderId:", folderId);
+  console.log("Received accessToken:", accessToken?.slice(0, 10), "...");
+
+  try {
+    const driveRes = await axios.get(
+      "https://www.googleapis.com/drive/v3/files",
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        params: {
+          q: `'${folderId}' in parents and trashed = false`,
+          fields: "files(id, name, mimeType)",
+        },
+      }
+    );
+
+    res.send({ files: driveRes.data.files });
+  } catch (err) {
+    console.error("Error fetching files:", err.response?.data || err.message);
+    res.status(500).send("Failed to list files");
   }
 });
 
