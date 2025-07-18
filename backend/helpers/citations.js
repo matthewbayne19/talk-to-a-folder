@@ -6,7 +6,7 @@ function generateCitations(answerText, files) {
   if (mentioned.length === 0) return "";
 
   return mentioned
-    .map((file) => `${file.name}`)
+    .map((file) => `<a href="https://drive.google.com/file/d/${file.id}/view" target="_blank" rel="noopener noreferrer">${file.name}</a>`)
     .join(", ");
 }
 
