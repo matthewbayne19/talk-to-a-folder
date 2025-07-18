@@ -9,6 +9,7 @@ function FolderInput({ folderUrl, setFolderUrl, handleFetchFiles, error }) {
       <Box
         component="form"
         onSubmit={handleFetchFiles}
+        className="glow-input"
         sx={{
           width: "75%",
           margin: "0 auto",
@@ -19,7 +20,7 @@ function FolderInput({ folderUrl, setFolderUrl, handleFetchFiles, error }) {
         <TextField
           fullWidth
           variant="outlined"
-          label="Paste Google Drive folder URL"
+          label="Paste Google Drive Folder URL"
           value={folderUrl}
           onChange={(e) => setFolderUrl(e.target.value)}
           InputLabelProps={{ style: { color: "#fff" } }}

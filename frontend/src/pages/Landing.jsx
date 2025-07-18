@@ -44,30 +44,51 @@ function Landing() {
         }}
       >
         <Container maxWidth="sm" sx={{ textAlign: "center" }}>
-          <Typography
-            variant="h2"
-            gutterBottom
-            sx={{ fontWeight: "bold" }}
-            className="glow-title"
-          >
-            Talk to a Folder
-          </Typography>
-
-          <Button
-            variant="outlined"
-            size="large"
-            onClick={getAuthUrl}
-            className="cool-login-btn"
+          <Box
             sx={{
-              mt: 4,
-              paddingX: 4,
-              paddingY: 1.5,
-              fontSize: "1.1rem",
-              backgroundColor: "transparent",
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              minHeight: '100vh',
+              gap: 5,
             }}
           >
-            Login with Google Drive
-          </Button>
+            <Typography
+              variant="h2"
+              sx={{ fontWeight: "bold" }}
+              className="glow-title"
+            >
+              Talk to a Folder
+            </Typography>
+            <Typography
+              variant="h6"
+              sx={{
+                color: '#b3e5fc',
+                fontWeight: 400,
+                letterSpacing: 0.5,
+                textShadow: '0 2px 8px rgba(79,195,247,0.18)',
+                mb: 1.5, // closer to title
+              }}
+            >
+              Instantly chat with the contents of any Google Drive folder.
+            </Typography>
+            <Button
+              variant="outlined"
+              size="large"
+              onClick={getAuthUrl}
+              className="cool-login-btn glow-btn"
+              sx={{
+                mt: 5, // further from one-liner
+                paddingX: 4,
+                paddingY: 1.5,
+                fontSize: "1.1rem",
+                backgroundColor: "transparent",
+              }}
+            >
+              Get Started
+            </Button>
+          </Box>
         </Container>
       </Box>
     </div>

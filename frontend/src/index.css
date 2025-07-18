@@ -90,3 +90,77 @@ code {
     opacity: 0;
   }
 }
+
+.filelist-glass-card {
+  background: rgba(30, 30, 30, 0.7);
+  border-radius: 18px;
+  box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.10), 0 0 32px 6px rgba(79,195,247,0.25);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.08);
+  padding: 1.5rem 2rem;
+  margin-bottom: 2rem;
+}
+
+.chatbox-glass {
+  border-radius: 18px !important;
+  box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.10), 0 0 32px 6px rgba(79,195,247,0.25) !important;
+  overflow: hidden;
+}
+
+.glow-btn {
+  box-shadow: 0 0 32px 6px rgba(79,195,247,0.25), 0 2px 8px 0 rgba(31, 38, 135, 0.10);
+  border-radius: 6px !important;
+  transition: box-shadow 0.2s;
+}
+
+.glow-btn:hover, .glow-btn:focus {
+  box-shadow: 0 0 48px 12px rgba(79,195,247,0.28), 0 2px 8px 0 rgba(31, 38, 135, 0.12);
+}
+
+.glow-input {
+  box-shadow: 0 0 32px 6px rgba(79,195,247,0.25), 0 2px 8px 0 rgba(31, 38, 135, 0.10);
+  border-radius: 12px;
+  transition: box-shadow 0.2s;
+}
+
+.glow-input:focus-within {
+  box-shadow: 0 0 48px 12px rgba(79,195,247,0.28), 0 2px 8px 0 rgba(31, 38, 135, 0.12);
+}
+
+.filelist-row {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  transition: background 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.filelist-row:last-child {
+  border-bottom: none;
+}
+
+.filelist-row:hover {
+  background: rgba(255,255,255,0.04);
+  box-shadow: 0 2px 8px 0 rgba(255,255,255,0.08);
+}
+
+.filelist-icon {
+  font-size: 1.5rem;
+  margin-right: 1rem;
+  color: #fff;
+  opacity: 0.8;
+}
+
+.filelist-name {
+  font-weight: 500;
+  color: #fff;
+  flex: 1;
+}
+
+.filelist-type {
+  font-size: 0.9rem;
+  color: #bbb;
+  margin-left: 1rem;
+}

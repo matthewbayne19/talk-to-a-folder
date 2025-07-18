@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Button, Box } from "@mui/material";
 
-const LogoutButton = () => {
+const LogoutButton = ({ className }) => {
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -24,6 +24,7 @@ const LogoutButton = () => {
       <Button
         variant="outlined"
         onClick={handleLogout}
+        className={className}
         sx={{
           color: "#fff",
           borderColor: "#fff",

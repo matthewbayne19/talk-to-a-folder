@@ -1,47 +1,42 @@
-import { List, ListItem, Divider, Box } from "@mui/material";
+import DescriptionIcon from '@mui/icons-material/Description';
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
+import TableChartIcon from '@mui/icons-material/TableChart';
+import SlideshowIcon from '@mui/icons-material/Slideshow';
+import TextSnippetIcon from '@mui/icons-material/TextSnippet';
+import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 
 const mimeTypeMap = {
-  "application/vnd.google-apps.document": "Google Docs",
-  "application/vnd.google-apps.spreadsheet": "Google Sheets",
-  "application/vnd.google-apps.presentation": "Google Slides",
-  "application/pdf": "PDF",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document": "Microsoft Word",
-  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": "Microsoft Excel",
-  "application/vnd.openxmlformats-officedocument.presentationml.presentation": "Microsoft PowerPoint",
-  "text/plain": "Text File",
-  "text/csv": "CSV",
+  "application/vnd.google-apps.document": { label: "Google Docs", icon: <DescriptionIcon className="filelist-icon" /> },
+  "application/vnd.google-apps.spreadsheet": { label: "Google Sheets", icon: <TableChartIcon className="filelist-icon" /> },
+  "application/vnd.google-apps.presentation": { label: "Google Slides", icon: <SlideshowIcon className="filelist-icon" /> },
+  "application/pdf": { label: "PDF", icon: <PictureAsPdfIcon className="filelist-icon" /> },
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document": { label: "Microsoft Word", icon: <DescriptionIcon className="filelist-icon" /> },
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": { label: "Microsoft Excel", icon: <TableChartIcon className="filelist-icon" /> },
+  "application/vnd.openxmlformats-officedocument.presentationml.presentation": { label: "Microsoft PowerPoint", icon: <SlideshowIcon className="filelist-icon" /> },
+  "text/plain": { label: "Text File", icon: <TextSnippetIcon className="filelist-icon" /> },
+  "text/csv": { label: "CSV", icon: <TableChartIcon className="filelist-icon" /> },
 };
 
 const FileList = ({ files }) => {
   return (
-    <>
-      <List sx={{ backgroundColor: "#111", borderRadius: "6px", mb: 3 }}>
-        {files.map((file) => (
-          <div key={file.id}>
-            <ListItem
-              component="a"
-              href={`https://drive.google.com/file/d/${file.id}/view`}
-              target="_blank"
-              rel="noopener noreferrer"
-              sx={{
-                color: "#fff",
-                justifyContent: "space-between",
-                textDecoration: "none",
-                "&:hover": {
-                  backgroundColor: "#222",
-                },
-              }}
-            >
-              <span>{file.name}</span>
-              <Box sx={{ fontSize: "0.85rem", color: "#ccc" }}>
-                {mimeTypeMap[file.mimeType] || file.mimeType}
-              </Box>
-            </ListItem>
-            <Divider sx={{ backgroundColor: "#333" }} />
-          </div>
-        ))}
-      </List>
-    </>
+    <div className="filelist-glass-card">
+      {files.map((file) => {
+        const typeInfo = mimeTypeMap[file.mimeType] || { label: file.mimeType, icon: <InsertDriveFileIcon className="filelist-icon" /> };
+        return (
+          <a
+            key={file.id}
+            href={`https://drive.google.com/file/d/${file.id}/view`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="filelist-row"
+          >
+            {typeInfo.icon}
+            <span className="filelist-name">{file.name}</span>
+            <span className="filelist-type">{typeInfo.label}</span>
+          </a>
+        );
+      })}
+    </div>
   );
 };
 

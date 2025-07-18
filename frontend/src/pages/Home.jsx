@@ -46,7 +46,7 @@ function Home() {
       }, 2000);
       return () => clearInterval(interval);
     }
-  }, [isLoading]);
+  }, [isLoading, loadingMessages.length]);
 
   const handleFetchFiles = async (e) => {
     e.preventDefault();
@@ -146,21 +146,31 @@ function Home() {
       sx={{
         height: "100vh",
         overflow: "hidden",
-        backgroundColor: "#000",
         color: "#fff",
         p: 4,
         boxSizing: "border-box",
         position: "relative", // <-- Important for absolute positioning
       }}
     >
-      <LogoutButton />
+      <LogoutButton className="glow-btn" />
       <Container maxWidth="md">
-        <Typography variant="h3" align="center" sx={{ mb: 5, fontWeight: "bold" }}>
+        <Typography
+          variant="h3"
+          align="center"
+          sx={{ mb: 5, fontWeight: "bold" }}
+          className="glow-title"
+        >
           Talk to a Folder
         </Typography>
 
         {isLoading ? (
-          <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", mt: 10 }}>
+          <Box sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            minHeight: "60vh",
+          }}>
             <CircularProgress sx={{ color: "#fff" }} />
             <Typography variant="h6" sx={{ mt: 3, color: "#fff", fontStyle: "italic" }}>
               {loadingMessages[loadingMessageIndex]}
@@ -178,6 +188,7 @@ function Home() {
             <Button
               variant="outlined"
               onClick={handleReset}
+              className="glow-btn"
               sx={{ display: "block", mx: "auto", mb: 7, color: "#fff", borderColor: "#fff" }}
             >
               Talk to a Different Folder
