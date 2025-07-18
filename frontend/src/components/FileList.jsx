@@ -1,3 +1,4 @@
+import { Box } from "@mui/material";
 import DescriptionIcon from '@mui/icons-material/Description';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import TableChartIcon from '@mui/icons-material/TableChart';
@@ -17,10 +18,17 @@ const mimeTypeMap = {
   "text/csv": { label: "CSV", icon: <TableChartIcon className="filelist-icon" /> },
 };
 
+const MAX_HEIGHT = 400;
 const FileList = ({ files }) => {
   return (
-    <div className="filelist-glass-card">
-      {files.map((file) => {
+    <div className="filelist-glass-card" style={{
+      maxHeight: MAX_HEIGHT,
+      minHeight: 48,
+      overflowY: 'auto',
+      position: 'relative',
+      paddingTop: '0.5rem',
+    }}>
+      {files.map((file, idx) => {
         const typeInfo = mimeTypeMap[file.mimeType] || { label: file.mimeType, icon: <InsertDriveFileIcon className="filelist-icon" /> };
         return (
           <a
@@ -29,6 +37,9 @@ const FileList = ({ files }) => {
             target="_blank"
             rel="noopener noreferrer"
             className="filelist-row"
+            style={{
+              borderBottom: idx === files.length - 1 ? 'none' : undefined,
+            }}
           >
             {typeInfo.icon}
             <span className="filelist-name">{file.name}</span>

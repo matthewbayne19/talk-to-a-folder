@@ -30,6 +30,7 @@ function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [showInput, setShowInput] = useState(true);
+  const [fileListOpen, setFileListOpen] = useState(true);
   const loadingMessages = [
     "Fetching files from Google Drive...",
     "Preparing Chat Agent...",
@@ -141,6 +142,8 @@ function Home() {
     setShowInput(true);
   };
 
+  const handleToggleFileList = () => setFileListOpen((open) => !open);
+
   return (
     <Box
       sx={{
@@ -195,7 +198,6 @@ function Home() {
             </Button>
 
             <FileList files={files} />
-
             <ChatBox
               chatMessages={chatMessages}
               isTyping={isTyping}

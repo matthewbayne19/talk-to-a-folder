@@ -99,6 +99,45 @@ code {
   border: 1px solid rgba(255,255,255,0.08);
   padding: 1.5rem 2rem;
   margin-bottom: 2rem;
+  transition: max-height 0.4s cubic-bezier(0.4,0,0.2,1), margin-bottom 0.3s;
+}
+
+.filelist-glass-card[style*="max-height: 48px"] {
+  margin-bottom: 0 !important;
+  padding-bottom: 0.5rem !important;
+}
+
+.filelist-glass-card::-webkit-scrollbar {
+  width: 8px;
+  background: transparent;
+}
+
+.filelist-glass-card::-webkit-scrollbar-thumb {
+  background: rgba(180, 180, 180, 0.4);
+  border-radius: 8px;
+  border: none;
+}
+
+.filelist-glass-card::-webkit-scrollbar-track {
+  background: transparent;
+  border: none;
+}
+
+.filelist-glass-card::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Hide scrollbar arrows (for browsers that support it) */
+.filelist-glass-card::-webkit-scrollbar-button {
+  display: none;
+  height: 0;
+  width: 0;
+}
+
+/* Firefox */
+.filelist-glass-card {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(180,180,180,0.4) transparent;
 }
 
 .chatbox-glass {
