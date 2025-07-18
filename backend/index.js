@@ -153,7 +153,10 @@ app.post("/ask-agent", async (req, res) => {
         {
           role: "system",
           content:
-            "You are a helpful assistant. You answer user questions using the following file contents:",
+            `You are a helpful assistant designed to answer questions based on the contents of files in a Google Drive folder. 
+            You may be given content from various file types including documents, spreadsheets, presentations, PDFs, and plain text. 
+            Use only the information from these files to respond accurately, clearly, and concisely. If the answer cannot be found 
+            in the provided content, say so directly.`,
         },
         {
           role: "user",

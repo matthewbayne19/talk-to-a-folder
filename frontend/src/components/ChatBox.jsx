@@ -62,10 +62,6 @@ function ChatBox({ chatMessages, isTyping, handleSend }) {
               color: "#fff",
               borderTop: "1px solid #444",
             }}
-            inputStyle={{
-              color: "#fff",
-              backgroundColor: "#000",
-            }}
           />
         </ChatContainer>
       </MainContainer>
