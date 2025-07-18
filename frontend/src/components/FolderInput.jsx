@@ -2,6 +2,8 @@ import React from "react";
 import { Box, TextField, Button } from "@mui/material";
 
 function FolderInput({ folderUrl, setFolderUrl, handleFetchFiles }) {
+  const isDisabled = folderUrl.trim() === "";
+
   return (
     <Box
       component="form"
@@ -30,8 +32,23 @@ function FolderInput({ folderUrl, setFolderUrl, handleFetchFiles }) {
       />
       <Button
         type="submit"
-        variant="contained"
-        sx={{ backgroundColor: "#1976d2", whiteSpace: "nowrap" }}
+        variant="outlined"
+        disabled={isDisabled}
+        sx={{
+          whiteSpace: "nowrap",
+          backgroundColor: "transparent",
+          color: "#fff",
+          borderColor: "#fff",
+          "&:hover": {
+            backgroundColor: "#222",
+            borderColor: "#ccc",
+          },
+          "&.Mui-disabled": {
+            color: "#888",
+            borderColor: "#888",
+            opacity: 1, // prevent default dimming
+          },
+        }}
       >
         Fetch Files
       </Button>
