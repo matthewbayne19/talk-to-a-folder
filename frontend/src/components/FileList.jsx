@@ -7,7 +7,7 @@ const mimeTypeMap = {
   "application/pdf": "PDF",
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document": "Microsoft Word",
   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": "Microsoft Excel",
-  "application/vnd.openxmlformats-officedocument.presentationml.presentation": "PowerPoint",
+  "application/vnd.openxmlformats-officedocument.presentationml.presentation": "Microsoft PowerPoint",
   "text/plain": "Text File",
   "text/csv": "CSV",
 };
