@@ -1,11 +1,17 @@
+// FolderInput.jsx
+// Component for entering and submitting a Google Drive folder URL.
+
 import React from "react";
 import { Box, TextField, Button, Alert } from "@mui/material";
 
+// Folder input form component
 function FolderInput({ folderUrl, setFolderUrl, handleFetchFiles, error }) {
+  // Disable button if input is empty
   const isDisabled = folderUrl.trim() === "";
 
   return (
     <>
+      {/* Folder URL input and submit button */}
       <Box
         component="form"
         onSubmit={handleFetchFiles}
@@ -55,6 +61,7 @@ function FolderInput({ folderUrl, setFolderUrl, handleFetchFiles, error }) {
           Fetch Files
         </Button>
       </Box>
+      {/* Error message display */}
       {error && (
         <Box sx={{ width: "75%", margin: "10px auto 0 auto" }}>
           <Alert severity="error">{error}</Alert>

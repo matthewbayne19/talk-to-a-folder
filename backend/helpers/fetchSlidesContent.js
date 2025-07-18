@@ -1,14 +1,20 @@
+// fetchSlidesContent.js
+// Helper for extracting text content from a Google Slides presentation.
+
 const { google } = require("googleapis");
 const getAuthClient = require("./authClient");
 
+// Fetches and returns the plain text content of a Google Slides presentation
 const fetchSlidesContent = async (fileId, accessToken) => {
   const auth = getAuthClient(accessToken);
   const slides = google.slides({ version: "v1", auth });
 
   try {
+    // Fetch all slides from the presentation
     const res = await slides.presentations.get({ presentationId: fileId });
     const slidesData = res.data.slides || [];
 
+    // Extract text from each slide
     const content = slidesData
       .map((slide, idx) => {
         const textElements = [];

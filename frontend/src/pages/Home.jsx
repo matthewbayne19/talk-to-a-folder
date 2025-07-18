@@ -1,3 +1,6 @@
+// Home.jsx
+// Main page for authenticated users: handles folder input, file fetching, chat, and UI state.
+
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -15,30 +18,41 @@ import ChatBox from "../components/ChatBox";
 import FileList from "../components/FileList";
 import LogoutButton from "../components/LogoutButton";
 
-
+// Extracts the folder ID from a Google Drive folder URL
 const extractFolderId = (url) => {
   const folderMatch = url.match(/\/folders\/([a-zA-Z0-9_-]+)/);
   return folderMatch ? folderMatch[1] : null;
 };
 
+// Main Home page component
 function Home() {
+  // State for folder URL input
   const [folderUrl, setFolderUrl] = useState("");
+  // List of files in the selected folder
   const [files, setFiles] = useState([]);
+  // Contents of each file (for chat context)
   const [fileContents, setFileContents] = useState([]);
+  // Chat message history
   const [chatMessages, setChatMessages] = useState([]);
+  // UI state for chat typing indicator
   const [isTyping, setIsTyping] = useState(false);
+  // Loading spinner state
   const [isLoading, setIsLoading] = useState(false);
+  // Error message for user feedback
   const [error, setError] = useState("");
+  // Whether to show the folder input or the chat UI
   const [showInput, setShowInput] = useState(true);
-  const [fileListOpen, setFileListOpen] = useState(true);
+  // Loading messages to cycle through
   const loadingMessages = [
     "Fetching files from Google Drive...",
     "Preparing Chat Agent...",
     "Almost ready!"
   ];
+  // Index of the current loading message
   const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
   const navigate = useNavigate();
 
+  // Cycle through loading messages while loading
   useEffect(() => {
     if (isLoading) {
       setLoadingMessageIndex(0);
@@ -49,6 +63,7 @@ function Home() {
     }
   }, [isLoading, loadingMessages.length]);
 
+  // Handles fetching files from the Google Drive folder
   const handleFetchFiles = async (e) => {
     e.preventDefault();
     setError("");
@@ -63,6 +78,7 @@ function Home() {
     }
 
     try {
+      // Request file list from backend
       const res = await axios.post("http://localhost:4000/list-files", {
         accessToken,
         folderId,
@@ -74,6 +90,7 @@ function Home() {
       }
       setFiles(res.data.files);
 
+      // Request file contents for chat context
       const contentsRes = await axios.post("http://localhost:4000/get-file-contents", {
         accessToken,
         files: res.data.files,
@@ -82,6 +99,7 @@ function Home() {
       setFileContents(contentsRes.data.contents);
       setShowInput(false);
     } catch (err) {
+      // Handle session expiration and other errors
       console.error("Error fetching files or contents:", err);
       if (err.response?.status === 401) {
         localStorage.removeItem("access_token");
@@ -97,6 +115,7 @@ function Home() {
     }
   };
 
+  // Handles sending a chat message to the assistant
   const handleSend = async (userMessage) => {
     const newMessage = {
       message: userMessage,
@@ -109,6 +128,7 @@ function Home() {
     setIsTyping(true);
 
     try {
+      // Send chat request to backend
       const res = await axios.post("http://localhost:4000/ask-agent", {
         contents: fileContents,
         question: userMessage,
@@ -119,6 +139,7 @@ function Home() {
         { message: res.data.answer, sender: "assistant", direction: "incoming" },
       ]);
     } catch (err) {
+      // Handle session expiration and chat errors
       console.error("Chat error:", err);
       if (err.response?.status === 401) {
         localStorage.removeItem("access_token");
@@ -134,6 +155,7 @@ function Home() {
     }
   };
 
+  // Resets the UI to allow the user to select a new folder
   const handleReset = () => {
     setFolderUrl("");
     setFiles([]);
@@ -141,8 +163,6 @@ function Home() {
     setChatMessages([]);
     setShowInput(true);
   };
-
-  const handleToggleFileList = () => setFileListOpen((open) => !open);
 
   return (
     <Box
@@ -155,8 +175,10 @@ function Home() {
         position: "relative", // <-- Important for absolute positioning
       }}
     >
+      {/* Logout button in top right */}
       <LogoutButton className="glow-btn" />
       <Container maxWidth="md">
+        {/* Main title */}
         <Typography
           variant="h3"
           align="center"
@@ -166,6 +188,7 @@ function Home() {
           Talk to a Folder
         </Typography>
 
+        {/* Loading spinner and cycling message */}
         {isLoading ? (
           <Box sx={{
             display: "flex",
@@ -180,6 +203,7 @@ function Home() {
             </Typography>
           </Box>
         ) : showInput ? (
+          // Folder input form
           <FolderInput
             folderUrl={folderUrl}
             setFolderUrl={setFolderUrl}
@@ -188,6 +212,7 @@ function Home() {
           />
         ) : (
           <>
+            {/* Button to reset and select a different folder */}
             <Button
               variant="outlined"
               onClick={handleReset}
@@ -197,6 +222,7 @@ function Home() {
               Talk to a Different Folder
             </Button>
 
+            {/* File list and chat UI */}
             <FileList files={files} />
             <ChatBox
               chatMessages={chatMessages}

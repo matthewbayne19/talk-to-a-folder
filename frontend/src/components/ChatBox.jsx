@@ -1,3 +1,6 @@
+// ChatBox.jsx
+// Chat UI component: displays chat messages and input for user/assistant conversation.
+
 import React from "react";
 import {
   MainContainer,
@@ -8,8 +11,10 @@ import {
   TypingIndicator,
 } from "@chatscope/chat-ui-kit-react";
 
+// ChatBox component for chat interaction
 function ChatBox({ chatMessages, isTyping, handleSend }) {
   return (
+    // Fixed height chat area with glassmorphism styling
     <div style={{ height: "500px", marginTop: "30px" }}>
       <MainContainer
         className="chatbox-glass"
@@ -21,6 +26,7 @@ function ChatBox({ chatMessages, isTyping, handleSend }) {
         }}
       >
         <ChatContainer style={{ backgroundColor: "#000" }}>
+            {/* Message list with typing indicator */}
             <MessageList
               style={{ backgroundColor: "#000" }}
               typingIndicator={
@@ -55,6 +61,7 @@ function ChatBox({ chatMessages, isTyping, handleSend }) {
               ))}
             </MessageList>
 
+            {/* Chat input field */}
             <MessageInput
               placeholder="Ask something about the folder contents..."
               onSend={handleSend}

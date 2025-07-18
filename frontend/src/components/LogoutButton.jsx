@@ -1,11 +1,16 @@
+// LogoutButton.jsx
+// Button to log out the user and clear session, positioned in the top right.
+
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Button, Box } from "@mui/material";
 
+// Logout button component
 const LogoutButton = ({ className }) => {
   const navigate = useNavigate();
 
+  // Handles logout: revoke token, clear local storage, redirect
   const handleLogout = async () => {
     const accessToken = localStorage.getItem("access_token");
 
@@ -20,6 +25,7 @@ const LogoutButton = ({ className }) => {
   };
 
   return (
+    // Top right positioned logout button
     <Box sx={{ position: "absolute", top: 20, right: 20 }}>
       <Button
         variant="outlined"

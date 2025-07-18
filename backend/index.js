@@ -1,3 +1,6 @@
+// backend/index.js
+// Express backend for Google Drive chat assistant: handles OAuth, file listing, content extraction, and chat API.
+
 const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
@@ -29,7 +32,7 @@ const fetchTxtContent = require("./helpers/fetchTxtContent");
 const fetchCsvContent = require("./helpers/fetchCsvContent");
 const { generateCitations } = require("./helpers/citations");
 
-// OAuth2 setup
+// OAuth2 setup for Google authentication
 const oauth2Client = new google.auth.OAuth2(
   process.env.GOOGLE_CLIENT_ID,
   process.env.GOOGLE_CLIENT_SECRET,
@@ -70,6 +73,7 @@ app.post("/list-files", async (req, res) => {
   const drive = google.drive({ version: "v3", auth });
 
   try {
+    // Query Google Drive for files in the folder
     const listRes = await drive.files.list({
       q: `'${folderId}' in parents and trashed = false`,
       fields: "files(id, name, mimeType)",
@@ -78,6 +82,7 @@ app.post("/list-files", async (req, res) => {
     const files = listRes.data.files || [];
     res.send({ files });
   } catch (err) {
+    // Handle folder not found or other errors
     console.error("Error listing files:", err.response?.data || err.message);
     if (err.response?.status === 404 || (err.response?.data?.error?.message && err.response.data.error.message.includes("not found"))) {
       res.status(404).send({ error: "Google Drive folder not found." });
@@ -96,6 +101,7 @@ app.post("/get-file-contents", async (req, res) => {
     let content = "";
 
     try {
+      // Use appropriate helper for each file type
       switch (file.mimeType) {
         case "application/vnd.google-apps.document":
           content = await fetchDocContent(file.id, accessToken);
@@ -128,6 +134,7 @@ app.post("/get-file-contents", async (req, res) => {
           content = "[Unsupported file type]";
       }
     } catch (err) {
+      // Handle expired token or file fetch errors
       if (err.response?.status === 401) {
         return res.status(401).send("Access token expired");
       }
@@ -149,11 +156,13 @@ app.post("/ask-agent", async (req, res) => {
     return res.status(400).send("Missing or invalid 'contents'");
   }
 
+  // Combine all file contents for the chat context
   const combined = contents
     .map((file) => `File: ${file.name}\nContent:\n${file.content}\n`)
     .join("\n\n");
 
   try {
+    // Call OpenAI chat completion API
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [
@@ -171,6 +180,7 @@ app.post("/ask-agent", async (req, res) => {
 
     const answerText = response.choices[0].message.content;
 
+    // Generate citation links for referenced files
     const citationLinks = generateCitations(answerText, contents);
 
     const fullAnswer = citationLinks
@@ -184,6 +194,7 @@ app.post("/ask-agent", async (req, res) => {
   }
 });
 
+// Logout endpoint: revoke Google token
 app.post("/logout", async (req, res) => {
   const { accessToken } = req.body;
 
@@ -204,7 +215,7 @@ app.post("/logout", async (req, res) => {
   }
 });
 
-
+// Start the backend server
 app.listen(4000, () => {
   console.log("Backend running on http://localhost:4000");
 });

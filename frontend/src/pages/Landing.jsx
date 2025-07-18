@@ -1,8 +1,13 @@
+// Landing.jsx
+// Landing page for unauthenticated users: shows title, description, and login button.
+
 import React from "react";
 import axios from "axios";
 import { Box, Button, Typography, Container } from "@mui/material";
 
+// Landing page component
 function Landing() {
+  // Handles Google OAuth login and ripple effect on button
   const getAuthUrl = async (e) => {
     // Ripple effect
     const button = e.currentTarget;
@@ -19,7 +24,7 @@ function Landing() {
     }
     button.appendChild(circle);
 
-    // Original login logic
+    // Redirect to Google OAuth
     try {
       const res = await axios.get("http://localhost:4000/auth-url");
       window.location.href = res.data.url;
@@ -54,6 +59,7 @@ function Landing() {
               gap: 5,
             }}
           >
+            {/* Main title */}
             <Typography
               variant="h2"
               sx={{ fontWeight: "bold" }}
@@ -61,6 +67,7 @@ function Landing() {
             >
               Talk to a Folder
             </Typography>
+            {/* One-liner description */}
             <Typography
               variant="h6"
               sx={{
@@ -73,6 +80,7 @@ function Landing() {
             >
               Instantly chat with the contents of any Google Drive folder.
             </Typography>
+            {/* Login button with ripple effect */}
             <Button
               variant="outlined"
               size="large"
