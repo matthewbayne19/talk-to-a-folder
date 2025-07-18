@@ -2,19 +2,19 @@
 
 ## Project Concept
 
-**Talk to a Folder** is a web application that allows users to chat with the contents of any Google Drive folder. By authenticating with Google, users can paste a folder URL, fetch all supported files inside, and ask questions about their contents. The app uses OpenAI's GPT model to answer questions based on the actual text in the files, providing sources for its answers.
+**Talk to a Folder** is a web application that allows users to chat with the contents of any Google Drive folder. By authenticating with Google, users can paste a folder URL, fetch all supported files inside, and ask questions about their contents. The app uses OpenAI's GPT-4o model to answer questions based on the actual text in the files, providing sources for its answers.
 
 ## Supported File Types
 
-- Google Docs (`.gdoc`)
-- Google Sheets (`.gsheet`)
-- Google Slides (`.gslides`)
-- PDF (`.pdf`)
-- Microsoft Word (`.docx`)
-- Microsoft Excel (`.xlsx`)
-- Microsoft PowerPoint (`.pptx`)
-- Plain Text (`.txt`)
-- CSV (`.csv`)
+- Google Docs
+- Google Sheets
+- Google Slides
+- PDF
+- Microsoft Word
+- Microsoft Excel
+- Microsoft PowerPoint
+- Plain Text
+- CSV
 
 ## How to Run the Project
 
@@ -94,4 +94,3 @@ npm start
 
 ---
 
-*More details and features can be added as the project evolves.*
