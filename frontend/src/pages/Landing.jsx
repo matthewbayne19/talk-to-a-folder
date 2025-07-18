@@ -31,18 +31,21 @@ function Landing() {
         </Typography>
 
         <Button
-          variant="contained"
+          variant="outlined"
           size="large"
           onClick={getAuthUrl}
           sx={{
             mt: 4,
-            backgroundColor: "#1976d2",
-            "&:hover": {
-              backgroundColor: "#1565c0",
-            },
+            color: "#fff",
+            borderColor: "#fff",
             paddingX: 4,
             paddingY: 1.5,
             fontSize: "1.1rem",
+            backgroundColor: "transparent",
+            "&:hover": {
+              backgroundColor: "#222",
+              borderColor: "#ccc",
+            },
           }}
         >
           Login with Google Drive
