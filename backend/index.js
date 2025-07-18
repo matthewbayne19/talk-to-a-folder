@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const { google } = require("googleapis");
-const OpenAI = require("openai");
+const { OpenAI } = require("openai");
 const axios = require("axios");
 
 dotenv.config();
@@ -11,7 +11,12 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Import helpers
+// Initialize OpenAI
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
+// Helper imports
 const getAuthClient = require("./helpers/authClient");
 const fetchDocContent = require("./helpers/fetchDocContent");
 const fetchSheetContent = require("./helpers/fetchSheetContent");
@@ -22,16 +27,16 @@ const fetchExcelContent = require("./helpers/fetchExcelContent");
 const fetchPptxContent = require("./helpers/fetchPptxContent");
 const fetchTxtContent = require("./helpers/fetchTxtContent");
 const fetchCsvContent = require("./helpers/fetchCsvContent");
+const { generateCitations } = require("./helpers/citations");
 
-
-// OAuth2 Setup
+// OAuth2 setup
 const oauth2Client = new google.auth.OAuth2(
   process.env.GOOGLE_CLIENT_ID,
   process.env.GOOGLE_CLIENT_SECRET,
   "http://localhost:3000/oauth-callback"
 );
 
-// Step 1: Auth URL
+// Step 1: Generate Auth URL
 app.get("/auth-url", (req, res) => {
   const url = oauth2Client.generateAuthUrl({
     access_type: "offline",
@@ -45,18 +50,19 @@ app.get("/auth-url", (req, res) => {
   res.send({ url });
 });
 
-// Step 2: Auth Code Exchange
+// Step 2: Exchange auth code for tokens
 app.post("/auth-code", async (req, res) => {
   const { code } = req.body;
   try {
     const { tokens } = await oauth2Client.getToken(code);
     res.send(tokens);
   } catch (err) {
+    console.error("Auth code exchange error:", err.message);
     res.status(500).send("Failed to get tokens");
   }
 });
 
-// Step 3: List Files
+// Step 3: List files in a folder
 app.post("/list-files", async (req, res) => {
   const { accessToken, folderId } = req.body;
 
@@ -77,7 +83,7 @@ app.post("/list-files", async (req, res) => {
   }
 });
 
-// Step 4: Get File Contents
+// Step 4: Extract contents from files
 app.post("/get-file-contents", async (req, res) => {
   const { accessToken, files } = req.body;
   const fileContents = [];
@@ -118,23 +124,20 @@ app.post("/get-file-contents", async (req, res) => {
           content = "[Unsupported file type]";
       }
     } catch (err) {
-      const status = err.response?.status;
-      if (status === 401) return res.status(401).send("Access token expired");
+      if (err.response?.status === 401) {
+        return res.status(401).send("Access token expired");
+      }
       console.error(`Failed to fetch content for ${file.name}:`, err.message);
       content = "[Error fetching file content]";
     }
 
-    fileContents.push({ name: file.name, content });
+    fileContents.push({ name: file.name, content, id: file.id, mimeType: file.mimeType });
   }
 
   res.send({ contents: fileContents });
 });
 
-// Step 5: Ask OpenAI Agent
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
+// Step 5: Ask the assistant a question
 app.post("/ask-agent", async (req, res) => {
   const { contents, question } = req.body;
 
@@ -153,10 +156,7 @@ app.post("/ask-agent", async (req, res) => {
         {
           role: "system",
           content:
-            `You are a helpful assistant designed to answer questions based on the contents of files in a Google Drive folder. 
-            You may be given content from various file types including documents, spreadsheets, presentations, PDFs, and plain text. 
-            Use only the information from these files to respond accurately, clearly, and concisely. If the answer cannot be found 
-            in the provided content, say so directly.`,
+            "You are a helpful AI assistant designed to answer questions based on the contents of documents found in a Google Drive folder. Always reason carefully, and base your answer solely on the information available in the provided files. If a question cannot be answered from the content, say so directly.",
         },
         {
           role: "user",
@@ -165,7 +165,15 @@ app.post("/ask-agent", async (req, res) => {
       ],
     });
 
-    res.send({ answer: response.choices[0].message.content });
+    const answerText = response.choices[0].message.content;
+
+    const citationLinks = generateCitations(answerText, contents);
+
+    const fullAnswer = citationLinks
+      ? `${answerText}\n\nSources: ${citationLinks}`
+      : answerText;
+
+    res.send({ answer: fullAnswer });
   } catch (err) {
     console.error("Error calling OpenAI:", err.message);
     res.status(500).send("Failed to generate answer");
