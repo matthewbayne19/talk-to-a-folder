@@ -59,6 +59,12 @@ npm start
 - Click **Get Started** on the landing page.
 - Follow the Google authentication flow and **accept all permissions requested** (these are required to access your Drive files for chat).
 
+### Sample Folder for Testing
+
+- This repository includes a `sample_folder` folder containing example files of supported types.
+- You can upload this folder to your Google Drive and use its link with the app to test the chat and citation features.
+- The sample files cover all supported formats, making it easy to try out the app's capabilities right away.
+
 ## Design Choices & Features
 
 - **Google OAuth & Secure Logout:**

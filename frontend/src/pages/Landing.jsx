@@ -8,6 +8,7 @@ import { Box, Button, Typography, Container } from "@mui/material";
 // Landing page component
 function Landing() {
   // Handles Google OAuth login and ripple effect on button
+  const [error, setError] = React.useState("");
   const getAuthUrl = async (e) => {
     // Ripple effect
     const button = e.currentTarget;
@@ -26,9 +27,11 @@ function Landing() {
 
     // Redirect to Google OAuth
     try {
+      setError("");
       const res = await axios.get("http://localhost:4000/auth-url");
       window.location.href = res.data.url;
     } catch (err) {
+      setError("The server is currently unavailable. Please make sure the backend is running and try again.");
       console.error("Failed to get auth URL:", err.message);
     }
   };
@@ -96,6 +99,11 @@ function Landing() {
             >
               Get Started
             </Button>
+            {error && (
+              <Typography sx={{ color: '#ff5252', mt: 3, fontWeight: 500 }}>
+                {error}
+              </Typography>
+            )}
           </Box>
         </Container>
       </Box>

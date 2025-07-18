@@ -11,7 +11,10 @@ import {
   CircularProgress,
   Button,
   Tooltip,
+  Alert,
+  IconButton,
 } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 
 import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
 import FolderInput from "../components/FolderInput";
@@ -182,6 +185,34 @@ function Home() {
       {/* Logout button in top right */}
       <LogoutButton className="glow-btn" />
       <Container maxWidth="md">
+        {/* Error Banner */}
+        {error && (
+          <Alert
+            severity="error"
+            sx={{
+              mb: 3,
+              borderRadius: 2,
+              fontWeight: 500,
+              fontSize: 17,
+              alignItems: 'center',
+              background: 'linear-gradient(90deg, #ff5252 60%, #ff867f 100%)',
+              color: '#fff',
+              boxShadow: '0 2px 12px rgba(255,82,82,0.18)',
+            }}
+            action={
+              <IconButton
+                aria-label="close"
+                color="inherit"
+                size="small"
+                onClick={() => setError("")}
+              >
+                <CloseIcon fontSize="inherit" />
+              </IconButton>
+            }
+          >
+            {error}
+          </Alert>
+        )}
         {/* Main title */}
         <Typography
           variant="h3"
