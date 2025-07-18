@@ -1,7 +1,6 @@
 // FileList.jsx
 // Displays a list of files in a Google Drive folder, with icons and scrollable area.
 
-import { Box } from "@mui/material";
 import DescriptionIcon from '@mui/icons-material/Description';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import TableChartIcon from '@mui/icons-material/TableChart';

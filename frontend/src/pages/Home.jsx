@@ -10,6 +10,7 @@ import {
   Typography,
   CircularProgress,
   Button,
+  Tooltip,
 } from "@mui/material";
 
 import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
@@ -51,6 +52,8 @@ function Home() {
   // Index of the current loading message
   const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
   const navigate = useNavigate();
+  // Reference Files Only toggle state
+  const [referenceFilesOnly, setReferenceFilesOnly] = useState(true);
 
   // Cycle through loading messages while loading
   useEffect(() => {
@@ -132,6 +135,7 @@ function Home() {
       const res = await axios.post("http://localhost:4000/ask-agent", {
         contents: fileContents,
         question: userMessage,
+        referenceFilesOnly,
       });
 
       setChatMessages((prev) => [
@@ -212,15 +216,26 @@ function Home() {
           />
         ) : (
           <>
-            {/* Button to reset and select a different folder */}
-            <Button
-              variant="outlined"
-              onClick={handleReset}
-              className="glow-btn"
-              sx={{ display: "block", mx: "auto", mb: 7, color: "#fff", borderColor: "#fff" }}
-            >
-              Talk to a Different Folder
-            </Button>
+            {/* Button row: Refetch Files and Talk to a Different Folder */}
+            <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mb: 3 }}>
+              <Button
+                variant="outlined"
+                onClick={() => handleFetchFiles({ preventDefault: () => {} })}
+                className="glow-btn"
+                disabled={isLoading}
+                sx={{ color: "#fff", borderColor: "#fff" }}
+              >
+                Refetch Current Folder
+              </Button>
+              <Button
+                variant="outlined"
+                onClick={handleReset}
+                className="glow-btn"
+                sx={{ color: "#fff", borderColor: "#fff" }}
+              >
+                Talk to a Different Folder
+              </Button>
+            </Box>
 
             {/* File list and chat UI */}
             <FileList files={files} />
@@ -228,7 +243,39 @@ function Home() {
               chatMessages={chatMessages}
               isTyping={isTyping}
               handleSend={handleSend}
+              referenceFilesOnly={referenceFilesOnly}
             />
+            {/* Reference Files Only toggle centered under chat */}
+            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+              <Tooltip
+                title={
+                  <span>
+                    <b>Checked:</b> The assistant will <b>only</b> answer using the files in the folder and will refuse unrelated questions.<br/>
+                    <b>Unchecked:</b> The assistant may answer general questions using its own knowledge if the files do not contain the answer.
+                  </span>
+                }
+                arrow
+                placement="bottom"
+              >
+                <label htmlFor="reference-files-only" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                  <input
+                    type="checkbox"
+                    id="reference-files-only"
+                    checked={referenceFilesOnly}
+                    onChange={e => setReferenceFilesOnly(e.target.checked)}
+                    style={{
+                      marginRight: 8,
+                      accentColor: '#4fc3f7', // theme blue
+                      width: 18,
+                      height: 18,
+                    }}
+                  />
+                  <span style={{ color: '#fff', fontSize: 15, userSelect: 'none', fontWeight: 500 }}>
+                    Reference Files Only
+                  </span>
+                </label>
+              </Tooltip>
+            </Box>
           </>
         )}
       </Container>

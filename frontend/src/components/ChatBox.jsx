@@ -12,7 +12,7 @@ import {
 } from "@chatscope/chat-ui-kit-react";
 
 // ChatBox component for chat interaction
-function ChatBox({ chatMessages, isTyping, handleSend }) {
+function ChatBox({ chatMessages, isTyping, handleSend, referenceFilesOnly }) {
   return (
     // Fixed height chat area with glassmorphism styling
     <div style={{ height: "500px", marginTop: "30px" }}>

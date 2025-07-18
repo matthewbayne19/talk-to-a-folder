@@ -150,7 +150,7 @@ app.post("/get-file-contents", async (req, res) => {
 
 // Step 5: Ask the assistant a question
 app.post("/ask-agent", async (req, res) => {
-  const { contents, question } = req.body;
+  const { contents, question, referenceFilesOnly } = req.body;
 
   if (!Array.isArray(contents)) {
     return res.status(400).send("Missing or invalid 'contents'");
@@ -161,6 +161,12 @@ app.post("/ask-agent", async (req, res) => {
     .map((file) => `File: ${file.name}\nContent:\n${file.content}\n`)
     .join("\n\n");
 
+  // System prompt: strict if referenceFilesOnly, more open if not
+  const strictPrompt =
+    "You are a helpful AI assistant. Only answer questions using the information found in the provided files from a Google Drive folder. If the question cannot be answered from the content, say so directly. Do not answer unrelated or general questions. Do not use outside knowledge.";
+  const openPrompt =
+    "You are a helpful AI assistant. Prefer to answer questions using the information found in the provided files from a Google Drive folder. If the question cannot be answered from the content, you may use your general knowledge, but indicate when you do so.";
+
   try {
     // Call OpenAI chat completion API
     const response = await openai.chat.completions.create({
@@ -168,8 +174,7 @@ app.post("/ask-agent", async (req, res) => {
       messages: [
         {
           role: "system",
-          content:
-            "You are a helpful AI assistant designed to answer questions based on the contents of documents found in a Google Drive folder. Always reason carefully, and base your answer solely on the information available in the provided files. If a question cannot be answered from the content, say so directly.",
+          content: referenceFilesOnly ? strictPrompt : openPrompt,
         },
         {
           role: "user",
