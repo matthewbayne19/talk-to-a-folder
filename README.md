@@ -24,7 +24,7 @@
 
 ### 1. Clone the repository
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/matthewbayne19/talk-to-a-folder.git
 cd talk-to-a-folder
 ```
 
