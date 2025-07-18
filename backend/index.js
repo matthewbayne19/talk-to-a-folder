@@ -118,6 +118,8 @@ app.post("/get-file-contents", async (req, res) => {
           content = "[Unsupported file type]";
       }
     } catch (err) {
+      const status = err.response?.status;
+      if (status === 401) return res.status(401).send("Access token expired");
       console.error(`Failed to fetch content for ${file.name}:`, err.message);
       content = "[Error fetching file content]";
     }
