@@ -79,7 +79,11 @@ app.post("/list-files", async (req, res) => {
     res.send({ files });
   } catch (err) {
     console.error("Error listing files:", err.response?.data || err.message);
-    res.status(500).send("Failed to list files");
+    if (err.response?.status === 404 || (err.response?.data?.error?.message && err.response.data.error.message.includes("not found"))) {
+      res.status(404).send({ error: "Google Drive folder not found." });
+    } else {
+      res.status(500).send({ error: "Failed to list files" });
+    }
   }
 });
 
