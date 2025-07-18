@@ -22,3 +22,71 @@ code {
 .custom-input .cs-message-input__tools {
   display: none !important;
 }
+
+.landing-gradient-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  background: linear-gradient(270deg, #111 0%, #222 25%, #333 50%, #222 75%, #111 100%);
+  background-size: 400% 400%;
+  animation: gradientMove 18s ease-in-out infinite;
+}
+
+@keyframes gradientMove {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.glow-title {
+  color: #fff;
+  text-shadow:
+    0 0 4px #fff,
+    0 0 8px #bbb,
+    0 0 12px #888;
+  animation: glowColorMono 4s linear infinite;
+}
+
+@keyframes glowColorMono {
+  0% { text-shadow: 0 0 4px #fff, 0 0 8px #bbb, 0 0 12px #888; }
+  25% { text-shadow: 0 0 4px #fff, 0 0 8px #888, 0 0 12px #222; }
+  50% { text-shadow: 0 0 4px #fff, 0 0 8px #222, 0 0 12px #fff; }
+  75% { text-shadow: 0 0 4px #fff, 0 0 8px #bbb, 0 0 12px #222; }
+  100% { text-shadow: 0 0 4px #fff, 0 0 8px #bbb, 0 0 12px #888; }
+}
+
+.cool-login-btn {
+  border: 2px solid #fff !important;
+  color: #fff !important;
+  background: rgba(30,30,30,0.7) !important;
+  font-weight: bold;
+  letter-spacing: 1px;
+  box-shadow: 0 0 8px 0 rgba(255,255,255,0.12);
+  transition: box-shadow 0.3s, transform 0.2s, background 0.3s, border-color 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+.cool-login-btn:hover, .cool-login-btn:focus {
+  box-shadow: 0 0 24px 4px #fff, 0 0 8px 2px #888;
+  background: rgba(60,60,60,0.9) !important;
+  border-color: #fff !important;
+  color: #fff !important;
+}
+.cool-login-btn .ripple {
+  position: absolute;
+  border-radius: 50%;
+  transform: scale(0);
+  animation: ripple-effect 0.6s linear;
+  background-color: rgba(255,255,255,0.3);
+  pointer-events: none;
+  z-index: 2;
+}
+@keyframes ripple-effect {
+  to {
+    transform: scale(2.5);
+    opacity: 0;
+  }
+}
