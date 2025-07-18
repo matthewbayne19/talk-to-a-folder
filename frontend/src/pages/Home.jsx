@@ -1,14 +1,17 @@
 import React, { useState } from "react";
 import axios from "axios";
 import {
-  MainContainer,
-  ChatContainer,
-  MessageList,
-  Message,
-  MessageInput,
-  TypingIndicator,
-} from "@chatscope/chat-ui-kit-react";
+  Box,
+  Container,
+  Typography,
+  CircularProgress,
+  Button,
+} from "@mui/material";
+
 import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
+import FolderInput from "../components/FolderInput";
+import ChatBox from "../components/ChatBox";
+import FileList from "../components/FileList";
 
 const extractFolderId = (url) => {
   const folderMatch = url.match(/\/folders\/([a-zA-Z0-9_-]+)/);
@@ -21,15 +24,19 @@ function Home() {
   const [fileContents, setFileContents] = useState([]);
   const [chatMessages, setChatMessages] = useState([]);
   const [isTyping, setIsTyping] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showInput, setShowInput] = useState(true);
 
   const handleFetchFiles = async (e) => {
     e.preventDefault();
     setError("");
+    setIsLoading(true);
     const accessToken = localStorage.getItem("access_token");
     const folderId = extractFolderId(folderUrl);
 
     if (!folderId) {
+      setIsLoading(false);
       setError("Invalid Google Drive folder URL.");
       return;
     }
@@ -41,16 +48,22 @@ function Home() {
       });
       setFiles(res.data.files);
 
-      // Now fetch contents for those files
       const contentsRes = await axios.post("http://localhost:4000/get-file-contents", {
         accessToken,
         files: res.data.files,
       });
 
       setFileContents(contentsRes.data.contents);
+      setShowInput(false);
     } catch (err) {
       console.error("Error fetching files or contents:", err);
-      setError("Failed to load files from Google Drive.");
+      if (err.response?.status === 401) {
+        setError("Session expired. Please log in again.");
+      } else {
+        setError("Failed to load files from Google Drive.");
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -86,64 +99,62 @@ function Home() {
     }
   };
 
+  const handleReset = () => {
+    setFolderUrl("");
+    setFiles([]);
+    setFileContents([]);
+    setChatMessages([]);
+    setShowInput(true);
+  };
+
   return (
-    <div style={{ padding: "20px" }}>
-      <h2>You're authenticated!</h2>
-      <form onSubmit={handleFetchFiles}>
-        <input
-          type="text"
-          placeholder="Paste Google Drive folder URL here"
-          value={folderUrl}
-          onChange={(e) => setFolderUrl(e.target.value)}
-          style={{ width: "80%", padding: "8px", margin: "10px 0" }}
-        />
-        <button type="submit">Fetch Files</button>
-      </form>
+    <Box
+      sx={{
+        height: "100vh",
+        overflow: "hidden",
+        backgroundColor: "#000",
+        color: "#fff",
+        p: 4,
+        boxSizing: "border-box",
+      }}
+    >
+      <Container maxWidth="md">
+        <Typography variant="h3" align="center" sx={{ mb: 5, fontWeight: "bold" }}>
+          Talk to a Folder
+        </Typography>
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
+        {isLoading ? (
+          <Box sx={{ display: "flex", justifyContent: "center", mt: 10 }}>
+            <CircularProgress sx={{ color: "#fff" }} />
+          </Box>
+        ) : showInput ? (
+          <FolderInput
+            folderUrl={folderUrl}
+            setFolderUrl={setFolderUrl}
+            handleFetchFiles={handleFetchFiles}
+            error={error}
+          />
+        ) : (
+          <>
+            <Button
+              variant="outlined"
+              onClick={handleReset}
+              sx={{ display: "block", mx: "auto", mb: 7, color: "#fff", borderColor: "#fff" }}
+            >
+              Talk to a Different Folder
+            </Button>
 
-      {files.length > 0 && (
-        <>
-          <h3>Files in Folder:</h3>
-          <ul>
-            {files.map((file) => (
-              <li key={file.id}>
-                {file.name} ({file.mimeType})
-              </li>
-            ))}
-          </ul>
+            <FileList files={files} />
 
-          <div style={{ height: "500px", marginTop: "30px" }}>
-            <MainContainer>
-              <ChatContainer>
-                <MessageList
-                  typingIndicator={
-                    isTyping ? <TypingIndicator content="Assistant is typing..." /> : null
-                  }
-                >
-                  {chatMessages.map((msg, i) => (
-                    <Message
-                      key={i}
-                      model={{
-                        message: msg.message,
-                        sentTime: "just now",
-                        sender: msg.sender,
-                        direction: msg.direction,
-                        position: "single",
-                      }}
-                    />
-                  ))}
-                </MessageList>
-                <MessageInput
-                  placeholder="Ask something about the folder contents..."
-                  onSend={handleSend}
-                />
-              </ChatContainer>
-            </MainContainer>
-          </div>
-        </>
-      )}
-    </div>
+            <ChatBox
+              chatMessages={chatMessages}
+              isTyping={isTyping}
+              handleSend={handleSend}
+            />
+          </>
+        )}
+      </Container>
+    </Box>
   );
 }
 

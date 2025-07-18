@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { CircularProgress, Box } from "@mui/material";
 
 function OAuthCallback() {
   const navigate = useNavigate();
@@ -22,7 +23,19 @@ function OAuthCallback() {
     handleAuth();
   }, [navigate]);
 
-  return <p>Loading...</p>;
+  return (
+    <Box
+      sx={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: "#000",
+      }}
+    >
+      <CircularProgress sx={{ color: "#fff" }} />
+    </Box>
+  );
 }
 
 export default OAuthCallback;

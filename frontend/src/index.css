@@ -1,13 +1,24 @@
+/* index.css */
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  background-color: black;
+  color: white;
+  font-family: Roboto, sans-serif;
 }
+
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+/* Custom styles for chat input */
+.custom-input .cs-message-input__content-editor {
+  color: black !important;       /* Text color inside input */
+  background-color: white !important; /* Optional for clearer contrast */
+}
+
+/* Hide the paperclip icon */
+.custom-input .cs-message-input__tools {
+  display: none !important;
 }
