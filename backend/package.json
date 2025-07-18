@@ -15,7 +15,14 @@
     "dotenv": "^17.2.0",
     "express": "^5.1.0",
     "googleapis": "^153.0.0",
+    "jszip": "^3.10.1",
+    "mammoth": "^1.9.1",
     "openai": "^5.10.1",
-    "pdf-parse": "^1.1.1"
+    "pdf-parse": "^1.1.1",
+    "pptx-parser": "^1.1.7-beta.9",
+    "tmp": "^0.2.3",
+    "tmp-promise": "^3.0.3",
+    "xlsx": "^0.18.5",
+    "xml2js": "^0.6.2"
   }
 }

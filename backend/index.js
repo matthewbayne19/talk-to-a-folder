@@ -4,7 +4,6 @@ const dotenv = require("dotenv");
 const { google } = require("googleapis");
 const OpenAI = require("openai");
 const axios = require("axios");
-const pdfParse = require("pdf-parse");
 
 dotenv.config();
 
@@ -12,18 +11,25 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Import helpers
+const getAuthClient = require("./helpers/authClient");
+const fetchDocContent = require("./helpers/fetchDocContent");
+const fetchSheetContent = require("./helpers/fetchSheetContent");
+const fetchPdfContent = require("./helpers/fetchPdfContent");
+const fetchSlidesContent = require("./helpers/fetchSlidesContent");
+const fetchWordContent = require("./helpers/fetchWordContent");
+const fetchExcelContent = require("./helpers/fetchExcelContent");
+const fetchPptxContent = require("./helpers/fetchPptxContent");
+const fetchTxtContent = require("./helpers/fetchTxtContent");
+const fetchCsvContent = require("./helpers/fetchCsvContent");
+
+
+// OAuth2 Setup
 const oauth2Client = new google.auth.OAuth2(
   process.env.GOOGLE_CLIENT_ID,
   process.env.GOOGLE_CLIENT_SECRET,
   "http://localhost:3000/oauth-callback"
 );
-
-// Helper to create authenticated Google API client
-const getAuthClient = (accessToken) => {
-  const authClient = new google.auth.OAuth2();
-  authClient.setCredentials({ access_token: accessToken });
-  return authClient;
-};
 
 // Step 1: Auth URL
 app.get("/auth-url", (req, res) => {
@@ -33,6 +39,7 @@ app.get("/auth-url", (req, res) => {
       "https://www.googleapis.com/auth/drive.readonly",
       "https://www.googleapis.com/auth/documents.readonly",
       "https://www.googleapis.com/auth/spreadsheets.readonly",
+      "https://www.googleapis.com/auth/presentations.readonly",
     ],
   });
   res.send({ url });
@@ -70,85 +77,6 @@ app.post("/list-files", async (req, res) => {
   }
 });
 
-// Helper: Fetch Google Docs content
-const fetchDocContent = async (fileId, accessToken) => {
-  const auth = getAuthClient(accessToken);
-  const docs = google.docs({ version: "v1", auth });
-
-  const response = await docs.documents.get({ documentId: fileId });
-
-  const bodyContent = response.data.body.content || [];
-  const text = bodyContent
-    .map((el) =>
-      el.paragraph?.elements?.map((e) => e.textRun?.content).join("") || ""
-    )
-    .join("");
-
-  return text;
-};
-
-// Helper: Fetch Google Sheets content
-const fetchSheetContent = async (fileId, accessToken) => {
-  const auth = getAuthClient(accessToken);
-  const sheets = google.sheets({ version: "v4", auth });
-
-  try {
-    // Step 1: Get metadata to list all sheet names
-    const metadata = await sheets.spreadsheets.get({
-      spreadsheetId: fileId,
-    });
-
-    const sheetTitles = metadata.data.sheets?.map((s) => s.properties.title) || [];
-
-    if (sheetTitles.length === 0) {
-      return "[No sheets found]";
-    }
-
-    let fullContent = "";
-
-    // Step 2: Loop through each sheet and fetch its data
-    for (const title of sheetTitles) {
-      const res = await sheets.spreadsheets.values.get({
-        spreadsheetId: fileId,
-        range: title,
-      });
-
-      const rows = res.data.values || [];
-      const sheetData = rows.map((row) => row.join(" | ")).join("\n");
-
-      fullContent += `Sheet: ${title}\n${sheetData}\n\n`;
-    }
-
-    return fullContent.trim();
-  } catch (err) {
-    console.error(`Failed to fetch sheet content for ${fileId}:`, err.message);
-    return "[Error fetching sheet content]";
-  }
-};
-
-// Helper: Extract for PDF content
-const fetchPdfContent = async (fileId, accessToken) => {
-  try {
-    // Export the file as PDF using Drive API
-    const exportRes = await axios.get(
-      `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`,
-      {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-        responseType: "arraybuffer", // important for binary
-      }
-    );
-
-    const buffer = Buffer.from(exportRes.data);
-    const parsed = await pdfParse(buffer);
-    return parsed.text;
-  } catch (err) {
-    console.error(`Failed to parse PDF ${fileId}:`, err.message);
-    return "[Error parsing PDF]";
-  }
-};
-
 // Step 4: Get File Contents
 app.post("/get-file-contents", async (req, res) => {
   const { accessToken, files } = req.body;
@@ -158,14 +86,36 @@ app.post("/get-file-contents", async (req, res) => {
     let content = "";
 
     try {
-      if (file.mimeType === "application/vnd.google-apps.document") {
-        content = await fetchDocContent(file.id, accessToken);
-      } else if (file.mimeType === "application/vnd.google-apps.spreadsheet") {
-        content = await fetchSheetContent(file.id, accessToken);
-      } else if (file.mimeType === "application/pdf") {
-        content = await fetchPdfContent(file.id, accessToken);
-      } else {
-        content = "[Unsupported file type]";
+      switch (file.mimeType) {
+        case "application/vnd.google-apps.document":
+          content = await fetchDocContent(file.id, accessToken);
+          break;
+        case "application/vnd.google-apps.spreadsheet":
+          content = await fetchSheetContent(file.id, accessToken);
+          break;
+        case "application/pdf":
+          content = await fetchPdfContent(file.id, accessToken);
+          break;
+        case "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+          content = await fetchWordContent(file.id, accessToken);
+          break;
+        case "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
+          content = await fetchExcelContent(file.id, accessToken);
+          break;
+        case "application/vnd.google-apps.presentation":
+          content = await fetchSlidesContent(file.id, accessToken);
+          break;
+        case "application/vnd.openxmlformats-officedocument.presentationml.presentation":
+          content = await fetchPptxContent(file.id, accessToken);
+          break;
+        case "text/plain":
+          content = await fetchTxtContent(file.id, accessToken);
+          break;
+        case "text/csv":
+          content = await fetchCsvContent(file.id, accessToken);
+          break;
+        default:
+          content = "[Unsupported file type]";
       }
     } catch (err) {
       console.error(`Failed to fetch content for ${file.name}:`, err.message);
