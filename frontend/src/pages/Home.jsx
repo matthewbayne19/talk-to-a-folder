@@ -66,6 +66,11 @@ function Home() {
         accessToken,
         folderId,
       });
+      if (!res.data.files || res.data.files.length === 0) {
+        setIsLoading(false);
+        setError("This folder is empty. Please add files to the folder and try again.");
+        return;
+      }
       setFiles(res.data.files);
 
       const contentsRes = await axios.post("http://localhost:4000/get-file-contents", {
@@ -81,6 +86,8 @@ function Home() {
         localStorage.removeItem("access_token");
         navigate("/session-expired");
         return;
+      } else if (err.response?.status === 404) {
+        setError("This Google Drive folder does not exist or you do not have access. Please check the link and try again.");
       } else {
         setError("Failed to load files from Google Drive.");
       }
