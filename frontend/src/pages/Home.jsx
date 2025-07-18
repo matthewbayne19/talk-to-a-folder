@@ -12,6 +12,8 @@ import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
 import FolderInput from "../components/FolderInput";
 import ChatBox from "../components/ChatBox";
 import FileList from "../components/FileList";
+import LogoutButton from "../components/LogoutButton";
+
 
 const extractFolderId = (url) => {
   const folderMatch = url.match(/\/folders\/([a-zA-Z0-9_-]+)/);
@@ -116,8 +118,10 @@ function Home() {
         color: "#fff",
         p: 4,
         boxSizing: "border-box",
+        position: "relative", // <-- Important for absolute positioning
       }}
     >
+      <LogoutButton />
       <Container maxWidth="md">
         <Typography variant="h3" align="center" sx={{ mb: 5, fontWeight: "bold" }}>
           Talk to a Folder

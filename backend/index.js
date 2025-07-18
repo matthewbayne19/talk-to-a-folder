@@ -180,6 +180,27 @@ app.post("/ask-agent", async (req, res) => {
   }
 });
 
+app.post("/logout", async (req, res) => {
+  const { accessToken } = req.body;
+
+  try {
+    await axios.post(
+      `https://oauth2.googleapis.com/revoke?token=${accessToken}`,
+      {},
+      {
+        headers: {
+          "Content-type": "application/x-www-form-urlencoded",
+        },
+      }
+    );
+    res.send({ success: true });
+  } catch (err) {
+    console.error("Failed to revoke token:", err.message);
+    res.status(500).send("Failed to logout");
+  }
+});
+
+
 app.listen(4000, () => {
   console.log("Backend running on http://localhost:4000");
 });
