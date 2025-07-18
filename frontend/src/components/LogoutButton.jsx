@@ -13,10 +13,10 @@ const LogoutButton = () => {
       await axios.post("http://localhost:4000/logout", { accessToken });
     } catch (err) {
       console.error("Error revoking token:", err);
+    } finally {
+      localStorage.removeItem("access_token");
+      navigate("/");
     }
-
-    localStorage.removeItem("access_token");
-    navigate("/");
   };
 
   return (

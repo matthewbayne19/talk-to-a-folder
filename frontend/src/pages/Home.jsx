@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import {
   Box,
   Container,
@@ -29,6 +30,23 @@ function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [showInput, setShowInput] = useState(true);
+  const loadingMessages = [
+    "Fetching files from Google Drive...",
+    "Preparing Chat Agent...",
+    "Almost ready!"
+  ];
+  const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isLoading) {
+      setLoadingMessageIndex(0);
+      const interval = setInterval(() => {
+        setLoadingMessageIndex((prev) => (prev + 1) % loadingMessages.length);
+      }, 2000);
+      return () => clearInterval(interval);
+    }
+  }, [isLoading]);
 
   const handleFetchFiles = async (e) => {
     e.preventDefault();
@@ -60,7 +78,9 @@ function Home() {
     } catch (err) {
       console.error("Error fetching files or contents:", err);
       if (err.response?.status === 401) {
-        setError("Session expired. Please log in again.");
+        localStorage.removeItem("access_token");
+        navigate("/session-expired");
+        return;
       } else {
         setError("Failed to load files from Google Drive.");
       }
@@ -92,6 +112,11 @@ function Home() {
       ]);
     } catch (err) {
       console.error("Chat error:", err);
+      if (err.response?.status === 401) {
+        localStorage.removeItem("access_token");
+        navigate("/session-expired");
+        return;
+      }
       setChatMessages((prev) => [
         ...prev,
         { message: "Error getting answer from assistant.", sender: "assistant", direction: "incoming" },
@@ -128,8 +153,11 @@ function Home() {
         </Typography>
 
         {isLoading ? (
-          <Box sx={{ display: "flex", justifyContent: "center", mt: 10 }}>
+          <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", mt: 10 }}>
             <CircularProgress sx={{ color: "#fff" }} />
+            <Typography variant="h6" sx={{ mt: 3, color: "#fff", fontStyle: "italic" }}>
+              {loadingMessages[loadingMessageIndex]}
+            </Typography>
           </Box>
         ) : showInput ? (
           <FolderInput
