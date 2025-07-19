@@ -11,8 +11,16 @@ import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 const LogoutButton = ({ className }) => {
   const navigate = useNavigate();
   const [open, setOpen] = React.useState(false);
+  const helpBtnRef = React.useRef(null);
+  const logoutBtnRef = React.useRef(null);
   const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+  const handleClose = () => {
+    setOpen(false);
+    // Remove focus from the help and logout buttons after closing
+    if (helpBtnRef.current) helpBtnRef.current.blur();
+    if (logoutBtnRef.current) logoutBtnRef.current.blur();
+    if (document.activeElement) document.activeElement.blur();
+  };
 
   // Handles logout: revoke token, clear local storage, redirect
   const handleLogout = async () => {
@@ -34,7 +42,7 @@ const LogoutButton = ({ className }) => {
     <Box sx={{ position: "absolute", top: 20, right: 20, display: 'flex', gap: 2 }}>
       <IconButton
         onClick={handleOpen}
-        className={className}
+        ref={helpBtnRef}
         sx={{
           color: "#fff",
           p: 0,
@@ -57,7 +65,7 @@ const LogoutButton = ({ className }) => {
       <Button
         variant="outlined"
         onClick={handleLogout}
-        className={className}
+        ref={logoutBtnRef}
         sx={{
           color: "#fff",
           borderColor: "#fff",
