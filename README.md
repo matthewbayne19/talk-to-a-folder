@@ -97,9 +97,32 @@ npm start
 
 - **Responsive & Accessible:**
   - The UI is designed to be visually appealing, accessible, and responsive for a wide range of devices.
-  
+
 - **Route Protection:**
   - Signed-in users are always redirected to the chat home page (`/home`), and cannot access the landing or other routes. Unauthenticated users cannot access `/home` or other protected routes, ensuring secure and intuitive navigation.
+
+## Architecture Overview
+
+**Frontend (React.js):**
+- **Landing Page**: OAuth authentication flow with Google
+- **Home Page**: Main application interface with folder input, file list, and chat
+- **Components**: Modular UI components (FolderInput, ChatBox, FileList, LogoutButton)
+- **State Management**: React hooks for managing authentication, file data, and chat messages
+- **Route Protection**: Automatic redirection based on authentication status
+
+**Backend (Node.js/Express):**
+- **OAuth Handler**: Google OAuth token exchange and validation
+- **Google Drive API**: File listing and content extraction for supported formats
+- **OpenAI Integration**: GPT-4o chat completion with file context
+- **File Processing**: Specialized helpers for different file types (PDF, Word, Excel, etc.)
+- **Session Management**: Token validation and secure logout
+
+**Data Flow:**
+1. User authenticates via Google OAuth
+2. Frontend sends folder URL to backend
+3. Backend fetches files from Google Drive
+4. File contents are extracted and sent to OpenAI
+5. Chat responses include citations to source files
 
 ---
 
