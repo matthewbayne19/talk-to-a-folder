@@ -6,7 +6,7 @@ import { Box, TextField, Button, Alert } from "@mui/material";
 import FolderIcon from '@mui/icons-material/Folder';
 
 // Folder input form component
-function FolderInput({ folderUrl, setFolderUrl, handleFetchFiles, error }) {
+function FolderInput({ folderUrl, setFolderUrl, handleFetchFiles, error, fullWidthOverride }) {
   // Disable button if input is empty
   const isDisabled = folderUrl.trim() === "";
 
@@ -17,10 +17,10 @@ function FolderInput({ folderUrl, setFolderUrl, handleFetchFiles, error }) {
         component="form"
         onSubmit={handleFetchFiles}
         sx={{
-          width: "75%",
+          width: fullWidthOverride ? '100%' : "75%",
           margin: "0 auto",
           display: "flex",
-          gap: "16px",
+          gap: fullWidthOverride ? '24px' : "16px",
         }}
       >
         <TextField
@@ -48,6 +48,7 @@ function FolderInput({ folderUrl, setFolderUrl, handleFetchFiles, error }) {
             ),
           }}
           sx={{
+            flex: 1,
             "& .MuiInputBase-input::placeholder": {
               color: "#bbb",
               opacity: 0.8,
@@ -57,29 +58,29 @@ function FolderInput({ folderUrl, setFolderUrl, handleFetchFiles, error }) {
             },
             "& .MuiOutlinedInput-root": {
               "& fieldset": { 
-                borderColor: "#444",
+                borderColor: "#fff",
                 borderWidth: "2px",
                 borderRadius: "12px",
               },
               "&:hover fieldset": { 
-                borderColor: "#4fc3f7",
+                borderColor: "#fff",
                 borderWidth: "2px",
               },
               "&.Mui-focused fieldset": {
-                borderColor: "#4fc3f7",
+                borderColor: "#fff",
                 borderWidth: "2px",
               },
-              backgroundColor: "rgba(255, 255, 255, 0.05)",
+              backgroundColor: "#000",
               borderRadius: "12px",
               transition: "all 0.3s ease",
               "&:hover": {
-                backgroundColor: "rgba(255, 255, 255, 0.08)",
+                backgroundColor: "#111",
                 transform: "translateY(-1px)",
-                boxShadow: "0 4px 12px rgba(79, 195, 247, 0.15)",
+                boxShadow: "none",
               },
               "&.Mui-focused": {
-                backgroundColor: "rgba(255, 255, 255, 0.1)",
-                boxShadow: "0 6px 20px rgba(79, 195, 247, 0.25)",
+                backgroundColor: "#111",
+                boxShadow: "none",
               },
             },
           }}
@@ -87,30 +88,36 @@ function FolderInput({ folderUrl, setFolderUrl, handleFetchFiles, error }) {
         <Button
           type="submit"
           variant="outlined"
-          className="glow-input"
+          // Remove glow-input by default
           disabled={isDisabled}
           sx={{
+            minWidth: fullWidthOverride ? 160 : undefined,
+            fontSize: fullWidthOverride ? '1.1rem' : undefined,
             whiteSpace: "nowrap",
             backgroundColor: "#000",
             color: "#fff",
             borderColor: "#fff",
+            borderWidth: '2px',
             borderRadius: "12px",
             fontWeight: "600",
-            fontSize: "15px",
             paddingX: "24px",
             paddingY: "12px",
-            transition: "all 0.3s ease",
+            transition: "all 0.3s ease, box-shadow 0.2s",
             "&:hover": {
               backgroundColor: "#111",
-              borderColor: "#ccc",
+              borderColor: "#fff",
               transform: "translateY(-1px)",
-              boxShadow: "0 4px 12px rgba(255, 255, 255, 0.15)",
+              boxShadow: "0 0 32px 6px rgba(79,195,247,0.25), 0 2px 8px 0 rgba(31, 38, 135, 0.10)",
             },
             "&.Mui-disabled": {
               color: "#888",
               borderColor: "#888",
               backgroundColor: "#000",
               opacity: 1, // prevent default dimming
+            },
+            // Glow on focus
+            '&:focus-visible': {
+              boxShadow: '0 0 32px 6px rgba(79,195,247,0.25), 0 2px 8px 0 rgba(31, 38, 135, 0.10)',
             },
           }}
         >

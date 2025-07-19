@@ -92,7 +92,7 @@ code {
 }
 
 .filelist-glass-card {
-  background: rgba(30, 30, 30, 0.7);
+  background: #000;
   border-radius: 18px;
   box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.10), 0 0 32px 6px rgba(79,195,247,0.25);
   backdrop-filter: blur(8px);
@@ -100,6 +100,7 @@ code {
   padding: 1.5rem 2rem;
   margin-bottom: 2rem;
   transition: max-height 0.4s cubic-bezier(0.4,0,0.2,1), margin-bottom 0.3s;
+  margin-top: 2.5rem;
 }
 
 .filelist-glass-card[style*="max-height: 48px"] {
@@ -181,8 +182,8 @@ code {
 }
 
 .filelist-row:hover {
-  background: rgba(255,255,255,0.04);
-  box-shadow: 0 2px 8px 0 rgba(255,255,255,0.08);
+  background: #222;
+  box-shadow: 0 2px 8px 0 rgba(255,255,255,0.12);
 }
 
 .filelist-icon {

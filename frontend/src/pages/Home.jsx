@@ -15,6 +15,7 @@ import {
   IconButton,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 
 import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
 import FolderInput from "../components/FolderInput";
@@ -30,8 +31,8 @@ const extractFolderId = (url) => {
 
 // Main Home page component
 function Home() {
-  // State for folder URL input
-  const [folderUrl, setFolderUrl] = useState("");
+  // State for folder URL input, initialize from localStorage if present
+  const [folderUrl, setFolderUrl] = useState(() => localStorage.getItem('folder_url') || "");
   // List of files in the selected folder
   const [files, setFiles] = useState([]);
   // Contents of each file (for chat context)
@@ -57,6 +58,13 @@ function Home() {
   const navigate = useNavigate();
   // Reference Files Only toggle state
   const [referenceFilesOnly, setReferenceFilesOnly] = useState(true);
+
+  // Keep folderUrl in sync with localStorage
+  useEffect(() => {
+    if (folderUrl) {
+      localStorage.setItem('folder_url', folderUrl);
+    }
+  }, [folderUrl]);
 
   // Cycle through loading messages while loading
   useEffect(() => {
@@ -169,6 +177,8 @@ function Home() {
     setFileContents([]);
     setChatMessages([]);
     setShowInput(true);
+    // Remove folder_url from localStorage
+    localStorage.removeItem('folder_url');
   };
 
   return (
@@ -238,13 +248,42 @@ function Home() {
             </Typography>
           </Box>
         ) : showInput ? (
-          // Folder input form
-          <FolderInput
-            folderUrl={folderUrl}
-            setFolderUrl={setFolderUrl}
-            handleFetchFiles={handleFetchFiles}
-            error={error}
-          />
+          // Modal-style overlay for folder input
+          <Box sx={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            zIndex: 1200,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: 'rgba(0,0,0,0.75)',
+            backdropFilter: 'blur(2px)',
+          }}>
+            <Box sx={{
+              minWidth: { xs: '95vw', sm: 600 },
+              maxWidth: 700,
+              p: { xs: 2, sm: 5 },
+              background: 'rgba(30,30,30,0.95)',
+              borderRadius: 4,
+              boxShadow: '0 8px 32px 0 rgba(31,38,135,0.25)',
+              border: '1.5px solid rgba(255,255,255,0.10)',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: 3,
+            }}>
+              <FolderInput
+                folderUrl={folderUrl}
+                setFolderUrl={setFolderUrl}
+                handleFetchFiles={handleFetchFiles}
+                error={error}
+                fullWidthOverride={true}
+              />
+            </Box>
+          </Box>
         ) : (
           <>
             {/* Button row: Refetch Files and Talk to a Different Folder */}
@@ -280,34 +319,65 @@ function Home() {
             />
             {/* Reference Files Only toggle centered under chat */}
             <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-              <Tooltip
-                title={
-                  <span>
-                    <b>Checked:</b> The assistant will <b>only</b> answer using the files in the folder and will refuse unrelated questions.<br/>
-                    <b>Unchecked:</b> The assistant may answer general questions using its own knowledge if the files do not contain the answer.
-                  </span>
-                }
-                arrow
-                placement="bottom"
-              >
-                <label htmlFor="reference-files-only" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
-                  <input
-                    type="checkbox"
-                    id="reference-files-only"
-                    checked={referenceFilesOnly}
-                    onChange={e => setReferenceFilesOnly(e.target.checked)}
-                    style={{
-                      marginRight: 8,
-                      accentColor: '#4fc3f7', // theme blue
-                      width: 18,
-                      height: 18,
-                    }}
-                  />
-                  <span style={{ color: '#fff', fontSize: 15, userSelect: 'none', fontWeight: 500 }}>
-                    Reference Files Only
-                  </span>
-                </label>
-              </Tooltip>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                <Tooltip
+                  title={
+                    <span>
+                      <b>Checked:</b> The assistant will <b>only</b> answer using the files in the folder and will refuse unrelated questions.<br/>
+                      <b>Unchecked:</b> The assistant may answer general questions using its own knowledge if the files do not contain the answer.
+                    </span>
+                  }
+                  arrow
+                  placement="bottom"
+                >
+                  <label htmlFor="reference-files-only" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                    <input
+                      type="checkbox"
+                      id="reference-files-only"
+                      checked={referenceFilesOnly}
+                      onChange={e => setReferenceFilesOnly(e.target.checked)}
+                      style={{
+                        marginRight: 8,
+                        accentColor: '#4fc3f7', // theme blue
+                        width: 18,
+                        height: 18,
+                      }}
+                    />
+                    <span style={{ color: '#fff', fontSize: 15, userSelect: 'none', fontWeight: 500 }}>
+                      Reference Files Only
+                    </span>
+                  </label>
+                </Tooltip>
+                <Button
+                  onClick={() => setChatMessages([])}
+                  size="small"
+                  disabled={chatMessages.length === 0}
+                  sx={{
+                    color: '#fff',
+                    background: 'none',
+                    border: 'none',
+                    boxShadow: 'none',
+                    fontSize: '0.95rem',
+                    minWidth: 'auto',
+                    padding: 0,
+                    ml: 2,
+                    display: 'flex',
+                    alignItems: 'center',
+                    textTransform: 'none',
+                    '&:hover': {
+                      backgroundColor: 'transparent',
+                      color: '#4fc3f7',
+                    },
+                    '&.Mui-disabled': {
+                      color: '#888',
+                      opacity: 0.7,
+                    },
+                  }}
+                >
+                  <DeleteOutlineIcon sx={{ fontSize: 18, mr: 0.5 }} />
+                  Clear Chat
+                </Button>
+              </Box>
             </Box>
           </>
         )}

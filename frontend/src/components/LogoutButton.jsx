@@ -24,6 +24,7 @@ const LogoutButton = ({ className }) => {
       console.error("Error revoking token:", err);
     } finally {
       localStorage.removeItem("access_token");
+      localStorage.removeItem("folder_url");
       navigate("/");
     }
   };
