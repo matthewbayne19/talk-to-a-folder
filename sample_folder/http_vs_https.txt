@@ -1,0 +1,7 @@
+HTTP vs HTTPS:
+
+- HTTP (HyperText Transfer Protocol) is a protocol for data communication on the web. It is not secure by default.
+- HTTPS (HTTP Secure) uses encryption via SSL/TLS to protect the communication between the browser and the server.
+- HTTPS is essential for protecting user data, especially in forms, payments, and login processes.
+- Modern browsers mark non-HTTPS sites as 'Not Secure'.
+- Always use HTTPS to ensure privacy and data integrity.
