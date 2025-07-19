@@ -64,7 +64,7 @@ function Home() {
       setLoadingMessageIndex(0);
       const interval = setInterval(() => {
         setLoadingMessageIndex((prev) => (prev + 1) % loadingMessages.length);
-      }, 2000);
+      }, 3000);
       return () => clearInterval(interval);
     }
   }, [isLoading, loadingMessages.length]);
@@ -268,8 +268,10 @@ function Home() {
               </Button>
             </Box>
 
-            {/* File list and chat UI */}
+            {/* File list */}
             <FileList files={files} />
+
+            {/* Chat agent and Reference Files Only toggle */}
             <ChatBox
               chatMessages={chatMessages}
               isTyping={isTyping}

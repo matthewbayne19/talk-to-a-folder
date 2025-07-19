@@ -16,6 +16,10 @@
 - Plain Text
 - CSV
 
+## Reference Files Only Feature
+
+- The application includes a "Reference Files Only" feature. When enabled, the assistant will answer questions strictly using the content found in the referenced files, ensuring that all responses are directly supported by the provided documents. This enhances transparency and trust in the answers, as every statement can be traced back to a specific file.
+
 ## How to Run the Project
 
 ### Prerequisites
@@ -59,11 +63,10 @@ npm start
 - Click **Get Started** on the landing page.
 - Follow the Google authentication flow and **accept all permissions requested** (these are required to access your Drive files for chat).
 
-### Sample Folder for Testing
+### Testing the App
 
-- This repository includes a `sample_folder` folder containing example files of supported types.
-- You can upload this folder to your Google Drive and use its link with the app to test the chat and citation features.
-- The sample files cover all supported formats, making it easy to try out the app's capabilities right away.
+- To test the app, use the Gmail account details provided in the submission email. This account has access to folders and files suitable for testing all features.
+- https://drive.google.com/drive/folders/19JAVLchtp2Qr-jVtIf3ZDrwwF_LHI3DX — This is the link to the test folder in Google Drive, accessible after authentication.
 
 ## Design Choices & Features
 
@@ -86,11 +89,17 @@ npm start
   - When the assistant references information from files, clickable citation links are provided at the end of the answer.
   - This allows users to verify the source of any information.
 
+- **Reference Files Only Mode:**
+  - When enabled, the assistant will answer strictly using the content from the referenced files, providing even more reliable and source-backed responses.
+
 - **Session Expiration Handling:**
   - If the user's session expires, they are redirected to a session expired page and prompted to log in again.
 
 - **Responsive & Accessible:**
   - The UI is designed to be visually appealing, accessible, and responsive for a wide range of devices.
+  
+- **Route Protection:**
+  - Signed-in users are always redirected to the chat home page (`/home`), and cannot access the landing or other routes. Unauthenticated users cannot access `/home` or other protected routes, ensuring secure and intuitive navigation.
 
 ---
 

@@ -10,6 +10,7 @@ import {
   MessageInput,
   TypingIndicator,
 } from "@chatscope/chat-ui-kit-react";
+import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 
 // ChatBox component for chat interaction
 function ChatBox({ chatMessages, isTyping, handleSend, referenceFilesOnly }) {
@@ -25,7 +26,7 @@ function ChatBox({ chatMessages, isTyping, handleSend, referenceFilesOnly }) {
           height: "100%",
         }}
       >
-        <ChatContainer style={{ backgroundColor: "#000" }}>
+        <ChatContainer style={{ backgroundColor: "#000", position: 'relative' }}>
             {/* Message list with typing indicator */}
             <MessageList
               style={{ backgroundColor: "#000" }}
@@ -43,6 +44,28 @@ function ChatBox({ chatMessages, isTyping, handleSend, referenceFilesOnly }) {
                 ) : null
               }
             >
+              {chatMessages.length === 0 && (
+                <div style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: 'calc(100% - 70px)', // leave space for input
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  pointerEvents: 'none',
+                  zIndex: 2,
+                  color: '#fff',
+                  opacity: 0.7,
+                  fontSize: 20,
+                  textAlign: 'center',
+                }}>
+                  <ChatBubbleOutlineIcon sx={{ fontSize: 60, mb: 2, color: '#fff', opacity: 0.5 }} />
+                  <div>Start the conversation!<br/>Ask anything about your folder's contents.</div>
+                </div>
+              )}
               {chatMessages.map((msg, i) => (
                 <Message
                   key={i}
