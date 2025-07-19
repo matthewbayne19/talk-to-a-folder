@@ -16,10 +16,6 @@
 - Plain Text
 - CSV
 
-## Reference Files Only Feature
-
-- The application includes a "Reference Files Only" feature. When enabled, the assistant will answer questions strictly using the content found in the referenced files, ensuring that all responses are directly supported by the provided documents. This enhances transparency and trust in the answers, as every statement can be traced back to a specific file.
-
 ## How to Run the Project
 
 ### Prerequisites
