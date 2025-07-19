@@ -196,7 +196,7 @@ function Home() {
       <LogoutButton className="glow-btn" />
       <Container maxWidth="md">
         {/* Error Banner */}
-        {error && (
+        {error && !showInput && (
           <Alert
             severity="error"
             sx={{
